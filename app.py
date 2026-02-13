@@ -85,6 +85,6 @@ Marketers, founders, analysts, and researchers.
 **Tech Stack:**  
 n8n workflow · APIs · Data pipelines · LLM analysis
 
-**Created by:** Guna R  
+**Created by:** Karthik
 **Portfolio:** https://yourportfolio.com
 """)
