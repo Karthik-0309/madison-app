@@ -1,90 +1,132 @@
 import streamlit as st
 import requests
 
-WEBHOOK = "PASTE_WEBHOOK_URL"
 
-# ======================
-# TOOL HEADER
-# ======================
 
-st.title("Madison Market Insight Tool")
+# ------------------------------------------------
+# HEADER
+# ------------------------------------------------
+
+st.title("Madison Brand Voice Generator")
 
 st.write(
-    "Analyzes real product launches and hiring data to generate structured market insights."
+    "Interactive AI system that studies real brand messaging and generates structured marketing intelligence."
 )
 
-# ======================
-# INPUTS
-# ======================
+st.divider()
 
-st.header("Input")
+# ------------------------------------------------
+# SYSTEM OVERVIEW
+# ------------------------------------------------
+
+st.header("System Overview")
+
+st.markdown("""
+This tool analyzes real-world launch messaging and promotional content to understand how brands communicate.
+
+It combines:
+- announcement language
+- marketing tone patterns
+- hiring demand signals
+
+The system then produces structured insights designed for strategic decision-making.
+""")
+
+# ------------------------------------------------
+# USERS
+# ------------------------------------------------
+
+st.header("Intended Users")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+- Startup founders  
+- Product managers  
+- Growth teams  
+""")
+
+with col2:
+    st.markdown("""
+- Marketing analysts  
+- Strategy teams  
+- Researchers  
+""")
+
+# ------------------------------------------------
+# TECH DETAILS
+# ------------------------------------------------
+
+st.header("Technical Framework")
+
+st.write("""
+Pipeline: n8n automated workflow  
+Sources: RSS + APIs + structured datasets  
+Processing: normalization + filtering + aggregation  
+Analysis: LLM reasoning engine  
+Interface: Streamlit public UI
+""")
+
+# ------------------------------------------------
+# INPUT PANEL
+# ------------------------------------------------
+
+st.header("Run Analysis")
 
 brand = st.text_input(
-    "Brand or Market Focus",
-    placeholder="Example: Nike, AI startups, Fintech tools"
+    "Target Brand or Industry",
+    placeholder="Example: Apple, AI tools, SaaS platforms"
 )
 
 goal = st.text_area(
-    "Analysis Goal",
-    placeholder="Example: Identify marketing trends and hiring demand signals"
+    "What insight are you looking for?",
+    placeholder="Example: Identify messaging trends and hiring demand"
 )
 
-run = st.button("Run Analysis")
+run = st.button("Generate Intelligence")
 
-# ======================
-# VALIDATION
-# ======================
+# ------------------------------------------------
+# VALIDATION + EXECUTION
+# ------------------------------------------------
 
 if run:
 
     if not brand.strip():
-        st.error("Brand/Market focus is required.")
+        st.warning("Please enter a brand or industry.")
         st.stop()
 
-    payload = {
-        "brand": brand,
-        "goal": goal
-    }
+    payload = {"brand": brand, "goal": goal}
 
-    with st.spinner("Running analysis..."):
+    with st.spinner("Processing market signals..."):
 
         try:
-            res = requests.post(WEBHOOK, json=payload)
-            data = res.json()
+            response = requests.post(WEBHOOK, json=payload)
+            data = response.json()
         except:
-            st.error("Could not connect to analysis engine.")
+            st.error("Unable to reach analysis engine.")
             st.stop()
 
-    # ======================
+    # ------------------------------------------------
     # OUTPUT
-    # ======================
+    # ------------------------------------------------
 
-    st.header("Results")
+    st.divider()
+    st.header("Analysis Output")
 
-    report = data.get("output") or data.get("text") or str(data)
+    result = data.get("output") or data.get("text") or str(data)
 
-    st.markdown(report)
+    st.markdown(result)
 
-    # Highlight section
-    st.subheader("Key Insight Highlight")
-    st.info("Analysis generated from real launch and job-market data sources.")
+    st.info("Generated using real launch + workforce datasets.")
 
-# ======================
-# BASIC INFO SECTION
-# ======================
+# ------------------------------------------------
+# FOOTER
+# ------------------------------------------------
 
-st.header("About")
+st.divider()
 
-st.write("""
-**What it does:**  
-Analyzes real-world brand announcements, product launches, and marketing posts to detect trends, positioning patterns, and workforce demand.
-
-**Who it's for:**  
-Marketers, founders, analysts, and researchers.
-
-**Tech Stack:**  
-n8n workflow · APIs · Data pipelines · LLM analysis
-
-**Created by:** Karthik
-**Portfolio:** https://yourportfolio.com
+st.caption("""
+Author: Karthik Kashyap RP 
+LinkedIn: http://karthikkashyaprp.com/
 """)
