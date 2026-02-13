@@ -1,119 +1,156 @@
 import streamlit as st
 import requests
 
-# =========================
-# CONFIG
-# =========================
+# ======================
+# PAGE CONFIG
+# ======================
 
-WEBHOOK_URL = "PASTE_YOUR_WEBHOOK_URL"
+st.set_page_config(
+    page_title="Madison Intelligence",
+    page_icon="📊",
+    layout="centered"
+)
 
-st.set_page_config(page_title="Madison Intelligence Tool", layout="centered")
+WEBHOOK = "PASTE_YOUR_WEBHOOK_URL"
 
-# =========================
+# ======================
+# STYLE
+# ======================
+
+st.markdown("""
+<style>
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.title {
+    font-size:42px;
+    font-weight:700;
+    text-align:center;
+}
+
+.subtitle {
+    text-align:center;
+    font-size:18px;
+    color:gray;
+    margin-bottom:40px;
+}
+
+.section {
+    background-color:#111827;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.metric-card {
+    background:#111827;
+    padding:18px;
+    border-radius:12px;
+    text-align:center;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ======================
 # HEADER
-# =========================
+# ======================
 
-st.title("Madison Brand Intelligence Engine")
+st.markdown('<div class="title">Madison Intelligence Engine</div>', unsafe_allow_html=True)
 
 st.markdown(
-"""
-AI system that analyzes real product launches and hiring data to generate structured market insights.
-"""
+    '<div class="subtitle">AI-powered market analysis using real launch + hiring data</div>',
+    unsafe_allow_html=True
 )
 
-# =========================
-# INPUT SECTION
-# =========================
+# ======================
+# INPUT CARD
+# ======================
 
-st.subheader("Input Parameters")
+with st.container():
 
-brand = st.text_input(
-    "Brand / Market Focus",
-    placeholder="Example: Nike, AI startups, SaaS tools"
-)
+    st.markdown("### Input Parameters")
 
-goal = st.text_area(
-    "Analysis Goal",
-    placeholder="Example: Identify marketing trends and hiring demand signals"
-)
+    brand = st.text_input(
+        "Brand / Market Focus",
+        placeholder="Nike, AI startups, Fintech tools"
+    )
 
-run = st.button("Run Analysis")
+    goal = st.text_area(
+        "Analysis Goal",
+        placeholder="Identify marketing trends and hiring demand"
+    )
 
-# =========================
-# VALIDATION
-# =========================
+    run = st.button("Generate Insights", use_container_width=True)
+
+# ======================
+# RUN ANALYSIS
+# ======================
 
 if run:
 
     if not brand.strip():
-        st.warning("Please enter a brand or market focus.")
+        st.warning("Enter a brand or market focus")
         st.stop()
 
-    payload = {
-        "brand": brand,
-        "goal": goal
-    }
+    payload = {"brand": brand, "goal": goal}
 
-    with st.spinner("Running market intelligence analysis..."):
+    with st.spinner("Analyzing real market data..."):
 
         try:
-            response = requests.post(WEBHOOK_URL, json=payload)
-
-            if response.status_code != 200:
-                st.error("Workflow failed. Check webhook.")
-                st.stop()
-
-            data = response.json()
-
-        except Exception as e:
-            st.error("Connection error. Make sure webhook is live.")
+            res = requests.post(WEBHOOK, json=payload)
+            data = res.json()
+        except:
+            st.error("Webhook not reachable")
             st.stop()
-
-    # =========================
-    # OUTPUT SECTION
-    # =========================
-
-    st.success("Analysis Complete")
 
     result = data.get("output") or data.get("text") or str(data)
 
-    st.markdown("## Market Intelligence Report")
+    st.markdown("---")
+    st.markdown("## 📊 Analysis Report")
     st.markdown(result)
 
-    # =========================
-    # DATASET STATS
-    # =========================
-
-    st.markdown("---")
-    st.subheader("Dataset Summary")
-
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric("Records", "145")
-    col2.metric("Sources", "3")
-    col3.metric("Quality", "98.6%")
-
-# =========================
-# ABOUT SECTION
-# =========================
+# ======================
+# DATASET METRICS
+# ======================
 
 st.markdown("---")
+st.markdown("### Dataset Overview")
 
-st.markdown("""
-### About
+col1, col2, col3 = st.columns(3)
 
-This tool analyzes real-world brand announcements, product launches, and marketing posts to detect messaging patterns, positioning strategies, and workforce demand.
+with col1:
+    st.metric("Records", "145")
+
+with col2:
+    st.metric("Sources", "3")
+
+with col3:
+    st.metric("Quality", "98.6%")
+
+# ======================
+# ABOUT
+# ======================
+
+with st.expander("About this tool"):
+
+    st.markdown("""
+**Madison Intelligence Engine** analyzes real-world marketing content to detect patterns in messaging, positioning, and hiring demand.
 
 **Data Sources**
-- Apple Newsroom announcements
-- Product launch video metadata
-- Public marketing dataset
+- Apple announcements
+- Product launch videos
+- Marketing datasets
 
-**Built For**
-Marketers, founders, analysts, researchers
+**Built for**
+Marketers · Analysts · Founders · Researchers
 
 **Tech Stack**
-n8n · APIs · data pipelines · LLM analysis
+n8n · APIs · LLMs · Data Pipelines
 
-**Created by:** Guna R
+**Creator**
+Guna R
 """)
