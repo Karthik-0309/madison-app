@@ -9,7 +9,7 @@ WEBHOOK = st.secrets["WEBHOOK_URL"]
 API_KEY = st.secrets["API_KEY"]
 
 st.set_page_config(
-    page_title="Madison Brand Voice Content Generator",
+    page_title="Madison Voice Generator",
     layout="centered"
 )
 
@@ -17,78 +17,42 @@ st.set_page_config(
 # HEADER
 # =========================
 
-st.title("Madison Brand Voice Content Generator")
-st.caption("Madison Framework Exploration — Public Interface")
+st.title("Madison Voice Generator")
+st.caption("AI system that generates consistent brand-aligned messaging")
 
 # =========================
-# PROJECT OVERVIEW
+# ABOUT
 # =========================
 
-st.header("What will this tool do?")
+st.header("About this tool")
 
 st.write("""
-This system extends the Content Agent layer of the Madison Framework to generate short,
-brand-aligned marketing content using structured inputs such as brand tone, target audience,
-and communication goals. 
-
-For each prompt, the system produces multiple content variations that users can review and
-select from, supporting a human-in-the-loop workflow.
+The Madison Voice Generator analyzes real marketing language patterns and produces
+structured brand-aligned messaging using agent-based workflow automation.
 """)
 
-# =========================
-# PROJECT VALUE
-# =========================
-
-st.header("Why is this valuable?")
-
-st.write("""
-This project provides a practical implementation of Madison’s Content Agent architecture.
-Instead of remaining conceptual, it demonstrates how a focused agent can deliver consistent
-brand voice output without requiring complex orchestration.
-
-It serves as a reference example showing how Madison’s agent-based design can be applied
-directly to real branding workflows.
-""")
-
-# =========================
-# SKILLS
-# =========================
-
-st.header("Skills Demonstrated")
-
+st.subheader("What it does")
 st.markdown("""
-- Prompt engineering
-- Agent-based system design
-- API integration with language models
-- Structured input design
-- Translating branding requirements into AI inputs
+- Detects brand tone patterns  
+- Analyzes positioning language  
+- Identifies messaging style  
+- Generates structured brand insights  
+- Produces consistent marketing output
 """)
 
-# =========================
-# REAL WORLD IMPACT
-# =========================
-
-st.header("Real-World Marketing Impact")
-
-st.write("""
-Brands often struggle to maintain a consistent tone across platforms.
-This system enables fast, reliable generation of on-brand content while
-reducing manual effort and improving messaging consistency.
+st.subheader("Who it's for")
+st.markdown("""
+- Founders  
+- Marketing teams  
+- Product teams  
+- Brand strategists  
+- Analysts
 """)
 
-# =========================
-# TECH STACK
-# =========================
+st.subheader("Tech Stack")
+st.write("n8n · APIs · LLM · Data Pipelines · Streamlit")
 
-st.header("Technology Stack")
-st.write("n8n · APIs · Data Processing · LLM · Streamlit · Agent Architecture")
-
-# =========================
-# AUTHOR
-# =========================
-
-st.header("Author")
-
+st.subheader("Author")
 st.markdown("""
 **Karthik Kashyap RP**  
 LinkedIn: https://www.linkedin.com/in/karthikashyaprp/  
@@ -101,22 +65,54 @@ st.divider()
 # INPUT SECTION
 # =========================
 
-st.header("Run Analysis")
+st.header("Generate Brand Voice Insights")
 
 brand = st.text_input(
-    "Brand or Company",
+    "Brand / Company",
     placeholder="Example: Tesla"
 )
 
 goal = st.text_area(
-    "Content or Analysis Goal",
-    placeholder="Example: Generate brand-aligned marketing insights"
+    "Goal",
+    placeholder="Example: Analyze tone and messaging style"
 )
 
-run = st.button("Generate Output")
+run = st.button("Generate")
 
 # =========================
-# EXECUTION
+# FORMAT FUNCTION
+# =========================
+
+def format_report(text):
+
+    sections = text.split("\n\n")
+    formatted = []
+
+    for s in sections:
+
+        if "Summary" in s:
+            formatted.append(("Executive Summary", s))
+
+        elif "Trend" in s:
+            formatted.append(("Tone & Messaging Trends", s))
+
+        elif "Value" in s:
+            formatted.append(("Value Propositions", s))
+
+        elif "Voice" in s or "Style" in s:
+            formatted.append(("Brand Voice Characteristics", s))
+
+        elif "Recommendation" in s:
+            formatted.append(("Recommendations", s))
+
+        else:
+            formatted.append(("Insight", s))
+
+    return formatted
+
+
+# =========================
+# RUN WORKFLOW
 # =========================
 
 if run:
@@ -130,51 +126,70 @@ if run:
         "goal": goal
     }
 
-    with st.spinner("Generating insights..."):
+    with st.spinner("Generating brand voice insights..."):
 
         try:
             headers = {"X-API-KEY": API_KEY}
 
-            response = requests.post(
+            res = requests.post(
                 WEBHOOK,
                 json=payload,
                 headers=headers,
                 timeout=120
             )
 
-            data = response.json()
+            data = res.json()
 
         except requests.exceptions.Timeout:
-            st.error("Workflow timed out. Please try again.")
+            st.error("Request timed out.")
             st.stop()
 
         except Exception:
-            st.error("Could not connect to processing engine.")
+            st.error("Could not connect to generator.")
             st.stop()
 
     # =========================
-    # RESULTS
+    # PARSE RESPONSE
+    # =========================
+
+    report = None
+
+    try:
+        report = data["report_text"]
+    except:
+        try:
+            report = data[0]["output"][0]["content"][0]["text"]
+        except:
+            report = str(data)
+
+    # =========================
+    # DISPLAY OUTPUT
     # =========================
 
     st.divider()
-    st.header("Generated Results")
-
-    report = data.get("report_text")
+    st.header("Generated Output")
 
     if report:
-        st.markdown(report)
+
+        formatted = format_report(report)
+
+        for title, content in formatted:
+            st.subheader(title)
+            st.write(content.replace(title, "").strip())
+
         st.success("Output generated successfully.")
+
     else:
-        st.error("No output returned from workflow.")
+        st.error("No output returned.")
 
     # =========================
-    # DATASET SUMMARY
+    # DATA SUMMARY
     # =========================
 
-    st.subheader("Dataset Summary")
+    st.subheader("Dataset Overview")
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    col1.metric("Records", "145")
-    col2.metric("Sources", "3")
-    col3.metric("Quality", "98.6%")
+    c1.metric("Records", "145")
+    c2.metric("Sources", "3")
+    c3.metric("Quality", "98.6%")
