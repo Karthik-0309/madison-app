@@ -6,6 +6,7 @@ import requests
 # ======================
 
 WEBHOOK = st.secrets["WEBHOOK_URL"]
+API_KEY = st.secrets["API_KEY"]
 
 st.set_page_config(
     page_title="Madison Market Insight Engine",
@@ -93,12 +94,24 @@ if run:
     with st.spinner("Running analysis..."):
 
         try:
-            response = requests.post(WEBHOOK, json=payload, timeout=120)
+            headers = {
+                "X-API-KEY": API_KEY
+            }
+
+            response = requests.post(
+                WEBHOOK,
+                json=payload,
+                headers=headers,
+                timeout=120
+            )
+
             data = response.json()
+
         except requests.exceptions.Timeout:
             st.error("Workflow timed out. Try again.")
             st.stop()
-        except:
+
+        except Exception as e:
             st.error("Could not connect to analysis engine.")
             st.stop()
 
