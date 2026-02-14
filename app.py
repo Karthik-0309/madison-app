@@ -8,10 +8,7 @@ import requests
 WEBHOOK = st.secrets["WEBHOOK_URL"]
 API_KEY = st.secrets["API_KEY"]
 
-st.set_page_config(
-    page_title="Madison Voice Generator",
-    layout="centered"
-)
+st.set_page_config(page_title="Madison Voice Generator", layout="centered")
 
 # =========================
 # HEADER
@@ -28,16 +25,16 @@ st.header("About this tool")
 
 st.write("""
 The Madison Voice Generator analyzes real marketing language patterns and produces
-structured brand-aligned messaging using agent-based workflow automation.
+structured brand-aligned messaging using an agent-based workflow pipeline.
 """)
 
 st.subheader("What it does")
 st.markdown("""
-- Detects brand tone patterns  
-- Analyzes positioning language  
-- Identifies messaging style  
-- Generates structured brand insights  
-- Produces consistent marketing output
+- Detects tone patterns  
+- Identifies messaging themes  
+- Extracts positioning signals  
+- Generates structured insights  
+- Produces consistent brand voice output
 """)
 
 st.subheader("Who it's for")
@@ -49,7 +46,7 @@ st.markdown("""
 - Analysts
 """)
 
-st.subheader("Tech Stack")
+st.subheader("Technology Stack")
 st.write("n8n · APIs · LLM · Data Pipelines · Streamlit")
 
 st.subheader("Author")
@@ -62,10 +59,10 @@ Portfolio: https://www.karthikkashyaprp.com/
 st.divider()
 
 # =========================
-# INPUT SECTION
+# INPUTS
 # =========================
 
-st.header("Generate Brand Voice Insights")
+st.header("Generate Brand Voice Report")
 
 brand = st.text_input(
     "Brand / Company",
@@ -74,42 +71,10 @@ brand = st.text_input(
 
 goal = st.text_area(
     "Goal",
-    placeholder="Example: Analyze tone and messaging style"
+    placeholder="Example: Analyze tone and messaging strategy"
 )
 
-run = st.button("Generate")
-
-# =========================
-# FORMAT FUNCTION
-# =========================
-
-def format_report(text):
-
-    sections = text.split("\n\n")
-    formatted = []
-
-    for s in sections:
-
-        if "Summary" in s:
-            formatted.append(("Executive Summary", s))
-
-        elif "Trend" in s:
-            formatted.append(("Tone & Messaging Trends", s))
-
-        elif "Value" in s:
-            formatted.append(("Value Propositions", s))
-
-        elif "Voice" in s or "Style" in s:
-            formatted.append(("Brand Voice Characteristics", s))
-
-        elif "Recommendation" in s:
-            formatted.append(("Recommendations", s))
-
-        else:
-            formatted.append(("Insight", s))
-
-    return formatted
-
+run = st.button("Generate Report")
 
 # =========================
 # RUN WORKFLOW
@@ -118,15 +83,12 @@ def format_report(text):
 if run:
 
     if not brand.strip():
-        st.error("Please enter a brand or company name.")
+        st.error("Please enter a brand or company.")
         st.stop()
 
-    payload = {
-        "brand": brand,
-        "goal": goal
-    }
+    payload = {"brand": brand, "goal": goal}
 
-    with st.spinner("Generating brand voice insights..."):
+    with st.spinner("Analyzing brand voice..."):
 
         try:
             headers = {"X-API-KEY": API_KEY}
@@ -167,18 +129,11 @@ if run:
     # =========================
 
     st.divider()
-    st.header("Generated Output")
+    st.header("Generated Report")
 
     if report:
-
-        formatted = format_report(report)
-
-        for title, content in formatted:
-            st.subheader(title)
-            st.write(content.replace(title, "").strip())
-
-        st.success("Output generated successfully.")
-
+        st.markdown(report)
+        st.success("Report generated successfully.")
     else:
         st.error("No output returned.")
 
@@ -189,7 +144,6 @@ if run:
     st.subheader("Dataset Overview")
 
     c1, c2, c3 = st.columns(3)
-
     c1.metric("Records", "145")
     c2.metric("Sources", "3")
     c3.metric("Quality", "98.6%")
