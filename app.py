@@ -1,89 +1,128 @@
 import streamlit as st
 import requests
 
-# ======================
+# =========================
 # CONFIG
-# ======================
+# =========================
 
 WEBHOOK = st.secrets["WEBHOOK_URL"]
 API_KEY = st.secrets["API_KEY"]
 
 st.set_page_config(
-    page_title="Madison Market Insight Engine",
+    page_title="Madison Brand Voice Content Generator",
     layout="centered"
 )
 
-# ======================
+# =========================
 # HEADER
-# ======================
+# =========================
 
-st.title("Madison Market Insight Engine")
-st.caption("Public interface for Assignment 4 AI workflow")
+st.title("Madison Brand Voice Content Generator")
+st.caption("Madison Framework Exploration — Public Interface")
 
-# ======================
-# ABOUT SECTION
-# ======================
+# =========================
+# PROJECT OVERVIEW
+# =========================
 
-st.header("About this tool")
+st.header("What will this tool do?")
 
-st.subheader("Description")
-st.write(
-    "Transforms marketing and workforce signals into structured, executive-ready insights."
-)
+st.write("""
+This system extends the Content Agent layer of the Madison Framework to generate short,
+brand-aligned marketing content using structured inputs such as brand tone, target audience,
+and communication goals. 
 
-st.subheader("What it does")
-st.markdown("""
-- Fetches real market data  
-- Analyzes hiring demand  
-- Detects trends and skill gaps  
-- Generates decision-ready recommendations
+For each prompt, the system produces multiple content variations that users can review and
+select from, supporting a human-in-the-loop workflow.
 """)
 
-st.subheader("Who it's for")
-st.markdown("""
-- Founders  
-- Marketers  
-- Product Teams  
-- Analysts
+# =========================
+# PROJECT VALUE
+# =========================
+
+st.header("Why is this valuable?")
+
+st.write("""
+This project provides a practical implementation of Madison’s Content Agent architecture.
+Instead of remaining conceptual, it demonstrates how a focused agent can deliver consistent
+brand voice output without requiring complex orchestration.
+
+It serves as a reference example showing how Madison’s agent-based design can be applied
+directly to real branding workflows.
 """)
 
-st.subheader("Tech Stack")
-st.write("n8n · APIs · Data Processing · LLM · Streamlit")
+# =========================
+# SKILLS
+# =========================
 
-st.subheader("Author")
+st.header("Skills Demonstrated")
+
 st.markdown("""
-Gunashree Rajakumar  
-https://www.linkedin.com/in/rajakumargunashree/
+- Prompt engineering
+- Agent-based system design
+- API integration with language models
+- Structured input design
+- Translating branding requirements into AI inputs
+""")
+
+# =========================
+# REAL WORLD IMPACT
+# =========================
+
+st.header("Real-World Marketing Impact")
+
+st.write("""
+Brands often struggle to maintain a consistent tone across platforms.
+This system enables fast, reliable generation of on-brand content while
+reducing manual effort and improving messaging consistency.
+""")
+
+# =========================
+# TECH STACK
+# =========================
+
+st.header("Technology Stack")
+st.write("n8n · APIs · Data Processing · LLM · Streamlit · Agent Architecture")
+
+# =========================
+# AUTHOR
+# =========================
+
+st.header("Author")
+
+st.markdown("""
+**Karthik Kashyap RP**  
+LinkedIn: https://www.linkedin.com/in/karthikashyaprp/  
+Portfolio: https://www.karthikkashyaprp.com/
 """)
 
 st.divider()
 
-# ======================
-# INPUTS
-# ======================
+# =========================
+# INPUT SECTION
+# =========================
 
-st.header("Inputs")
+st.header("Run Analysis")
 
 brand = st.text_input(
-    "Brand / Company",
+    "Brand or Company",
     placeholder="Example: Tesla"
 )
 
 goal = st.text_area(
-    "Analysis Goal",
-    placeholder="Example: Identify marketing trends and hiring demand signals"
+    "Content or Analysis Goal",
+    placeholder="Example: Generate brand-aligned marketing insights"
 )
 
-run = st.button("Run Analysis")
+run = st.button("Generate Output")
 
-# ======================
-# VALIDATION + EXECUTION
-# ======================
+# =========================
+# EXECUTION
+# =========================
 
 if run:
 
     if not brand.strip():
-        st.error("Brand or company name is required.")
+        st.error("Please enter a brand or company name.")
         st.stop()
 
     payload = {
@@ -91,12 +130,10 @@ if run:
         "goal": goal
     }
 
-    with st.spinner("Running analysis..."):
+    with st.spinner("Generating insights..."):
 
         try:
-            headers = {
-                "X-API-KEY": API_KEY
-            }
+            headers = {"X-API-KEY": API_KEY}
 
             response = requests.post(
                 WEBHOOK,
@@ -108,29 +145,31 @@ if run:
             data = response.json()
 
         except requests.exceptions.Timeout:
-            st.error("Workflow timed out. Try again.")
+            st.error("Workflow timed out. Please try again.")
             st.stop()
 
-        except Exception as e:
-            st.error("Could not connect to analysis engine.")
+        except Exception:
+            st.error("Could not connect to processing engine.")
             st.stop()
 
-    # ======================
-    # OUTPUT SECTION
-    # ======================
+    # =========================
+    # RESULTS
+    # =========================
 
     st.divider()
-    st.header("Results")
+    st.header("Generated Results")
 
-    result = data.get("output") or data.get("text") or str(data)
+    report = data.get("report_text")
 
-    st.markdown(result)
+    if report:
+        st.markdown(report)
+        st.success("Output generated successfully.")
+    else:
+        st.error("No output returned from workflow.")
 
-    st.success("Analysis generated successfully.")
-
-    # ======================
-    # DATA SUMMARY PANEL
-    # ======================
+    # =========================
+    # DATASET SUMMARY
+    # =========================
 
     st.subheader("Dataset Summary")
 
